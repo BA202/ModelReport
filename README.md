@@ -7,6 +7,10 @@ This tool must be installed on the local machine.
 
 #### Stable releases: [download](https://wkhtmltopdf.org/downloads.html)
 
+#### Mac OS:
+```
+brew install homebrew/cask/wkhtmltopdf   
+```
 
 The Module itself can be installed via pip
 ```

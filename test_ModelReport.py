@@ -1,5 +1,5 @@
 import unittest
-from ModelReport import ModelReport
+from ModelReport.ModelReport import ModelReport
 from DataHandler.DataHandler import DataHandler
 import random
 
