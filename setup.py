@@ -6,7 +6,7 @@ setup(name='ModelReport',
       description='A class to create pdf reports for classification algorithems',
       author='Tobias Rothlin',
       author_email='tobias@rothlin.com',
-      url='https://github.com/BA202/ModelReport',
+      url='https://github.com/BA202/ModelReport/ModelReport',
       packages=find_packages(),
       install_requires=[
           'numpy',
