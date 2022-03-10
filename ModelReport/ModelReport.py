@@ -75,12 +75,12 @@ class ModelReport:
         """
 
         fileName += ".pdf"
-
+        file_path = os.path.realpath(__file__).replace("/ModelReport.py","")+"/temp"
         try:
-            os.mkdir("temp")
+            os.mkdir(file_path)
         except:
             pass
-        file_path = os.path.realpath(__file__).replace("/ModelReport.py","")+"/temp"
+        
         options = {
             'page-size': 'A4',
             'margin-top': '5mm',
