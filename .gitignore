@@ -127,3 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+ModelRaport.pdf
+ROC_curves.png
+
+temp
+
+.idea
+.DS_Store
+
+#Data files
+.csv
+.json
+.tsv
