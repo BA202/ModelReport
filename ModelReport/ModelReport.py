@@ -289,7 +289,8 @@ class ModelReport:
             }
     
             .OverviewImg {
-                width: 250px;
+                height: 250px;
+                
             }
     
             .RightOverview {
