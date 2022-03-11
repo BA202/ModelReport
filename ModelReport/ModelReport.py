@@ -161,7 +161,7 @@ class ModelReport:
             startangle=0,
             colors=colorData,
         )
-        plt.savefig(file_path + "/PieChartTrainingData.svg", format="svg")
+        plt.savefig(file_path.replace("file://",'') + "/PieChartTrainingData.svg", format="svg")
         plt.close()
 
         y_pos = np.arange(len(labels))
@@ -169,7 +169,7 @@ class ModelReport:
         plt.xticks(y_pos, labels, rotation=90)
         plt.subplots_adjust(bottom=0.3, top=0.99)
         plt.ylabel("Sampels")
-        plt.savefig(file_path + "/BarChartTrainingData.svg", format="svg")
+        plt.savefig(file_path.replace("file://",'') + "/BarChartTrainingData.svg", format="svg")
         plt.close()
 
         confusionMatrix = {key: {subkey: 0 for subkey in labels} for key in labels}
@@ -193,7 +193,7 @@ class ModelReport:
         plt.figure(figsize=(10, 7))
         sn.heatmap(df_cm, annot=True)
         plt.subplots_adjust(bottom=0.3, top=0.99, left=0.2, right=0.99)
-        plt.savefig(file_path + "ConfusionMatrixPerformanceData.svg", format="svg"
+        plt.savefig(file_path.replace("file://",'') + "ConfusionMatrixPerformanceData.svg", format="svg"
         )
         plt.close()
 
