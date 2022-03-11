@@ -525,7 +525,7 @@ class ModelReport:
     </div>
     </html>"""
         )
-
+        print(htmlTemplate)
 
         pdfkit.from_string(
             htmlTemplate, fileName, options=options, configuration=config
