@@ -74,7 +74,7 @@ class ModelReport:
         if self.__testResults == None:
             self.__testResults = testResults
 
-    def createRaport(self, fileName="ModelRaport"):
+    def createRaport(self, fileName="ModelRaport",htmlDebug = False):
         """
         Created the pdf report of the model
 
@@ -193,7 +193,7 @@ class ModelReport:
         plt.figure(figsize=(10, 7))
         sn.heatmap(df_cm, annot=True)
         plt.subplots_adjust(bottom=0.3, top=0.99, left=0.2, right=0.99)
-        plt.savefig(file_path.replace("file://",'') + "ConfusionMatrixPerformanceData.svg", format="svg"
+        plt.savefig(file_path.replace("file://",'') + "/ConfusionMatrixPerformanceData.svg", format="svg"
         )
         plt.close()
 
@@ -525,7 +525,9 @@ class ModelReport:
     </div>
     </html>"""
         )
-        print(htmlTemplate)
+
+        if htmlDebug:
+            print(htmlTemplate)
 
         pdfkit.from_string(
             htmlTemplate, fileName, options=options, configuration=config
