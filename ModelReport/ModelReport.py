@@ -531,5 +531,4 @@ class ModelReport:
         )
         self.__trainingSet = None
         self.__testResults = None
-
         print(f"File created ->{file_path.replace('/temp','/')+fileName}")
