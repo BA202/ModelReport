@@ -85,7 +85,15 @@ class ModelReport:
         """
 
         fileName += ".pdf"
-        file_path = os.path.join(os.getcwd(), "temp")
+
+
+        config = None
+        if platform.system() == "Windows":
+            config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+            file_path = "file://" + os.path.join(os.getcwd(), "temp").replace('C:','')
+        else:
+            file_path = os.path.join(os.getcwd(), "temp")
+
         print(file_path)
         try:
             os.mkdir(file_path)
@@ -486,11 +494,11 @@ class ModelReport:
             </table>
     
             <div class="PiChartTrainingData">
-                <img class="svgImage" src="file://{file_path.replace('C:','')}/PieChartTrainingData.svg"" alt="PlotSample">
+                <img class="svgImage" src="{file_path}/PieChartTrainingData.svg"" alt="PlotSample">
             </div>
     
             <div class="BarChartTrainingData">
-                <img class="svgImage" src="file://{file_path.replace('C:','')}/BarChartTrainingData.svg" alt="PlotSample">
+                <img class="svgImage" src="{file_path}/BarChartTrainingData.svg" alt="PlotSample">
             </div>
         </div>
         <hr>
@@ -509,7 +517,7 @@ class ModelReport:
             <div class="PerformancePlots">
                 <div class="ConfusionMatrix">
                     <h4 class="h4PerformacePlots">ConfusionMatrix:</h4>
-                    <img class=" svgImage" src="file://{file_path.replace('C:','')}/ConfusionMatrixPerformanceData.svg" alt="PlotSample">
+                    <img class=" svgImage" src="{file_path}/ConfusionMatrixPerformanceData.svg" alt="PlotSample">
                 </div>
             </div>
         </div>
@@ -518,11 +526,7 @@ class ModelReport:
     </html>"""
         )
 
-        config = None
-        if platform.system() == "Windows":
-            config = pdfkit.configuration(
-                wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
-            )
+
         pdfkit.from_string(
             htmlTemplate, fileName, options=options, configuration=config
         )

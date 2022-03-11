@@ -14,7 +14,7 @@ class Test_ModelReport(unittest.TestCase):
             "Scikit-learn": "https://scikit-learn.org/stable/modules/naive_bayes.html",
         }
         algorithemDescription = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque id leo eu enim tempus rhoncus. Pellentesque fringilla at mi sit amet rutrum. Donec vehicula metus urna, maximus eleifend nibh consequat in. Mauris nunc ipsum, tristique non ligula id, tempor luctus turpis. Sed vehicula, ex id eleifend accumsan, augue nisi egestas mi, vel pretium justo magna quis erat. Donec et felis felis. Maecenas ut nunc ut urna sodales scelerisque. Sed sollicitudin facilisis sapien pharetra molestie. Donec accumsan nunc et dui aliquam, eget egestas ligula ullamcorper. Proin vitae tincidunt dolor. Vivamus imperdiet et velit vel laoreet. Donec nisi sem, rhoncus a orci id, ornare efficitur turpis. Mauris vitae ligula arcu. Aliquam felis neque, laoreet nec ante eu, dignissim tristique mi. Vivamus vitae lacus eu diam ultricies finibus at at libero."""
-        graphicPath = ""
+        graphicPath = "/Users/tobiasrothlin/Documents/BachelorArbeit/SentimentAnalysis/ROC_curves.png"
         graphicDescription = "The ROC curve of a naie Bayes Classifiere"
 
         # Using all Data as TrainingData
