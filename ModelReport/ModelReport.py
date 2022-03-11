@@ -5,6 +5,7 @@ import pdfkit
 import os
 import seaborn as sn
 import pandas as pd
+import platform
 
 class ModelReport:
 
@@ -470,6 +471,9 @@ class ModelReport:
     </div>
     </div>
     </html>"""
+
+        if platform.system() == 'Windows':
+            pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
         pdfkit.from_string(htmlTemplate,fileName,options=options)
         self.__trainingSet = None
         self.__testResults = None
