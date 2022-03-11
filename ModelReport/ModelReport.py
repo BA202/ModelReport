@@ -90,7 +90,7 @@ class ModelReport:
         config = None
         if platform.system() == "Windows":
             config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-            file_path = "file://" + os.path.join(os.getcwd(), "temp").replace('C:','')
+            file_path = "file://" + os.path.join(os.getcwd(), "temp").replace('C:','').replace('\\','/')
         else:
             file_path = os.path.join(os.getcwd(), "temp")
 
