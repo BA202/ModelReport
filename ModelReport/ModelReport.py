@@ -7,28 +7,37 @@ import seaborn as sn
 import pandas as pd
 import platform
 
+
 class ModelReport:
-
-    def __init__(self, modelName, creatorName, MLPrinciple, dictOfReferences,algoDescription,descriptionGraphicPath = "",graphicDescription =""):
+    def __init__(
+        self,
+        modelName,
+        creatorName,
+        MLPrinciple,
+        dictOfReferences,
+        algoDescription,
+        descriptionGraphicPath="",
+        graphicDescription="",
+    ):
         """
-                Creates a ModelReport object. Defines the Overview section of the model report.
+        Creates a ModelReport object. Defines the Overview section of the model report.
 
-                Parameters
-                ----------
-                modelName : str
-                    is the name of the Model.
-                creatorName : str
-                    the creator of the Report.
-                MLPrinciple : str
-                    the underlying ML principle of the Model.
-                dictOfReferences : dict
-                    dict containing Links {'WebsiteName':'FullLink'}.
-                algoDescription: str
-                    multiline string describing the algorithm.
-                descriptionGraphicPath: str
-                    absolute file path to a img. Gets placed next to the algoDescription.
-                graphicDescription: str
-                    short string describing the img.
+        Parameters
+        ----------
+        modelName : str
+            is the name of the Model.
+        creatorName : str
+            the creator of the Report.
+        MLPrinciple : str
+            the underlying ML principle of the Model.
+        dictOfReferences : dict
+            dict containing Links {'WebsiteName':'FullLink'}.
+        algoDescription: str
+            multiline string describing the algorithm.
+        descriptionGraphicPath: str
+            absolute file path to a img. Gets placed next to the algoDescription.
+        graphicDescription: str
+            short string describing the img.
         """
         self.__modelName = modelName
         self.__date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -41,60 +50,62 @@ class ModelReport:
         self.__trainingSet = None
         self.__testResults = None
 
-    def addTrainingSet(self,trainingSet):
+    def addTrainingSet(self, trainingSet):
         """
-            Adds the training set. This is used to visualise the training data used to train the model.
+        Adds the training set. This is used to visualise the training data used to train the model.
 
-            Parameters
-            ----------
-            trainingSet : list
-                a list containing all training data [['sen','class']]
+        Parameters
+        ----------
+        trainingSet : list
+            a list containing all training data [['sen','class']]
         """
         if self.__trainingSet == None:
             self.__trainingSet = trainingSet
 
-    def addTestResults(self,testResults):
+    def addTestResults(self, testResults):
         """
-            Adds the test results. This is used to visualise the classification performance.
+        Adds the test results. This is used to visualise the classification performance.
 
-            Parameters
-            ----------
-            testResults : list
-                a list containing all test results [[act,pred]]
+        Parameters
+        ----------
+        testResults : list
+            a list containing all test results [[act,pred]]
         """
         if self.__testResults == None:
             self.__testResults = testResults
 
-    def createRaport(self,fileName = "ModelRaport"):
+    def createRaport(self, fileName="ModelRaport"):
         """
-            Created the pdf report of the model
+        Created the pdf report of the model
 
-            Parameters
-            ----------
-            fileName : str
-                the name of the pdf raport.
+        Parameters
+        ----------
+        fileName : str
+            the name of the pdf raport.
         """
 
         fileName += ".pdf"
-        file_path =os.path.join(os.getcwd(),"temp")
+        file_path = os.path.join(os.getcwd(), "temp")
         print(file_path)
         try:
             os.mkdir(file_path)
         except:
             pass
-        
+
         options = {
-            'page-size': 'A4',
-            'margin-top': '5mm',
-            'margin-right': '5mm',
-            'margin-bottom': '5mm',
-            'margin-left': '5mm',
-            'encoding': "UTF-8",
-            'enable-local-file-access': None
+            "page-size": "A4",
+            "margin-top": "5mm",
+            "margin-right": "5mm",
+            "margin-bottom": "5mm",
+            "margin-left": "5mm",
+            "encoding": "UTF-8",
+            "enable-local-file-access": True,
         }
         referencesInHTML = ""
         for name in self.__dictOfReferences.keys():
-            referencesInHTML += f"""<li><a href="{self.__dictOfReferences[name]}">{name}</a></li>\n"""
+            referencesInHTML += (
+                f"""<li><a href="{self.__dictOfReferences[name]}">{name}</a></li>\n"""
+            )
         classesInTrainingData = """"""
         dictOfTrainingsets = {}
         for sample in self.__trainingSet:
@@ -104,14 +115,27 @@ class ModelReport:
                 dictOfTrainingsets[sample[1]] += 1
         listOfSortedTrainingData = []
         for key in dictOfTrainingsets.keys():
-            listOfSortedTrainingData.append([dictOfTrainingsets[key],key])
-        listOfSortedTrainingData = sorted(listOfSortedTrainingData,key=lambda x: x[0],reverse= True)
+            listOfSortedTrainingData.append([dictOfTrainingsets[key], key])
+        listOfSortedTrainingData = sorted(
+            listOfSortedTrainingData, key=lambda x: x[0], reverse=True
+        )
         labels = []
         sizes = []
         explode = []
-        color = ['#2E80B3', '#068587', '#4FB99F','#6D909C', '#F2B134', '#ED553B','#EA8859','#F0EBDF']
+        color = [
+            "#2E80B3",
+            "#068587",
+            "#4FB99F",
+            "#6D909C",
+            "#F2B134",
+            "#ED553B",
+            "#EA8859",
+            "#F0EBDF",
+        ]
         colorData = []
-        for data, i in zip(listOfSortedTrainingData,range(len(listOfSortedTrainingData))):
+        for data, i in zip(
+            listOfSortedTrainingData, range(len(listOfSortedTrainingData))
+        ):
             classesInTrainingData += f"""<tr>
                 <th class="TrainingDataClasses">{data[1]}</th>
                 <th>{data[0]}</th> 
@@ -119,22 +143,31 @@ class ModelReport:
             labels.append(data[1])
             sizes.append(data[0])
             explode.append(0)
-            colorData.append(color[i%len(color)])
-        plt.pie(sizes,explode=explode,labels=labels, autopct='%1.1f%%',
-        shadow=False, startangle=0 ,colors=colorData)
-        plt.savefig(os.path.join(file_path,"PieChartTrainingData.svg"), format="svg")
+            colorData.append(color[i % len(color)])
+        plt.pie(
+            sizes,
+            explode=explode,
+            labels=labels,
+            autopct="%1.1f%%",
+            shadow=False,
+            startangle=0,
+            colors=colorData,
+        )
+        plt.savefig(os.path.join(file_path, "PieChartTrainingData.svg"), format="svg")
         plt.close()
 
         y_pos = np.arange(len(labels))
-        plt.bar(y_pos, sizes, align='center',color=colorData)
-        plt.xticks(y_pos, labels,rotation=90)
+        plt.bar(y_pos, sizes, align="center", color=colorData)
+        plt.xticks(y_pos, labels, rotation=90)
         plt.subplots_adjust(bottom=0.3, top=0.99)
-        plt.ylabel('Sampels')
-        plt.savefig(os.path.join(file_path,"BarChartTrainingData.svg"), format="svg")
+        plt.ylabel("Sampels")
+        plt.savefig(os.path.join(file_path, "BarChartTrainingData.svg"), format="svg")
         plt.close()
 
-        confusionMatrix = { key: {subkey: 0 for subkey in labels} for key in labels}
-        performanceData = { key: {'precision':0,'recall':0,'fScore':0}for key in labels}
+        confusionMatrix = {key: {subkey: 0 for subkey in labels} for key in labels}
+        performanceData = {
+            key: {"precision": 0, "recall": 0, "fScore": 0} for key in labels
+        }
         for sample in self.__testResults:
             confusionMatrix[sample[1]][sample[0]] += 1
 
@@ -144,11 +177,17 @@ class ModelReport:
             for subkey in confusionMatrix[key].keys():
                 line.append(confusionMatrix[key][subkey])
             confMatrix.append(line)
-        df_cm = pd.DataFrame(confMatrix, index=[i+" (pre)" for i in confusionMatrix.keys()],columns=[i+" (act)" for i in confusionMatrix.keys()])
+        df_cm = pd.DataFrame(
+            confMatrix,
+            index=[i + " (pre)" for i in confusionMatrix.keys()],
+            columns=[i + " (act)" for i in confusionMatrix.keys()],
+        )
         plt.figure(figsize=(10, 7))
         sn.heatmap(df_cm, annot=True)
-        plt.subplots_adjust(bottom=0.3, top=0.99,left=0.2 ,right=0.99)
-        plt.savefig(os.path.join(file_path,"ConfusionMatrixPerformanceData.svg"), format="svg")
+        plt.subplots_adjust(bottom=0.3, top=0.99, left=0.2, right=0.99)
+        plt.savefig(
+            os.path.join(file_path, "ConfusionMatrixPerformanceData.svg"), format="svg"
+        )
         plt.close()
 
         for key in confusionMatrix.keys():
@@ -161,12 +200,16 @@ class ModelReport:
                 totalInRow = 1
             if totalInColumn == 0:
                 totalInColumn = 1
-            performanceData[key]['precision'] = confusionMatrix[key][key]/totalInRow
-            performanceData[key]['recall'] = confusionMatrix[key][key] /totalInColumn
+            performanceData[key]["precision"] = confusionMatrix[key][key] / totalInRow
+            performanceData[key]["recall"] = confusionMatrix[key][key] / totalInColumn
             try:
-                performanceData[key]['fScore'] = (2* performanceData[key]['precision'] * performanceData[key]['recall'])/(performanceData[key]['precision']  + performanceData[key]['recall'])
+                performanceData[key]["fScore"] = (
+                    2
+                    * performanceData[key]["precision"]
+                    * performanceData[key]["recall"]
+                ) / (performanceData[key]["precision"] + performanceData[key]["recall"])
             except:
-                performanceData[key]['fScore'] = 0
+                performanceData[key]["fScore"] = 0
 
         classificationPerformanceTable = """"""
         for key in performanceData.keys():
@@ -177,7 +220,8 @@ class ModelReport:
                 <th class="ImgCell">{performanceData[key]['fScore']*100}%</th>
                 </tr>\n"""
 
-        htmlTemplate= """
+        htmlTemplate = (
+            """
 <html>
     <head>
         <style type="text/css">
@@ -387,7 +431,8 @@ class ModelReport:
         </svg>
     </div>
     <div class="Header">
-"""+f"""<div class="ModelName">
+"""
+            + f"""<div class="ModelName">
             <label class="TitleWithText">Model Name:</label>
             <label>{self.__modelName}</label>
         </div>
@@ -441,11 +486,11 @@ class ModelReport:
             </table>
     
             <div class="PiChartTrainingData">
-                <img class="svgImage" src="{os.path.join(file_path,"PieChartTrainingData.svg")}" alt="PlotSample">
+                <img class="svgImage" src="file://{file_path.replace('C:','')}/PieChartTrainingData.svg"" alt="PlotSample">
             </div>
     
             <div class="BarChartTrainingData">
-                <img class="svgImage" src="{os.path.join(file_path,"BarChartTrainingData.svg")}" alt="PlotSample">
+                <img class="svgImage" src="file://{file_path.replace('C:','')}/BarChartTrainingData.svg" alt="PlotSample">
             </div>
         </div>
         <hr>
@@ -464,18 +509,26 @@ class ModelReport:
             <div class="PerformancePlots">
                 <div class="ConfusionMatrix">
                     <h4 class="h4PerformacePlots">ConfusionMatrix:</h4>
-                    <img class=" svgImage" src="{os.path.join(file_path,"ConfusionMatrixPerformanceData.svg")}" alt="PlotSample">
+                    <img class=" svgImage" src="file://{file_path.replace('C:','')}/ConfusionMatrixPerformanceData.svg" alt="PlotSample">
                 </div>
             </div>
         </div>
     </div>
     </div>
     </html>"""
+        )
 
-        if platform.system() == 'Windows':
-            pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-        pdfkit.from_string(htmlTemplate,fileName,options=options)
+        config = None
+        if platform.system() == "Windows":
+            config = pdfkit.configuration(
+                wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+            )
+        pdfkit.from_string(
+            htmlTemplate, fileName, options=options, configuration=config
+        )
         self.__trainingSet = None
         self.__testResults = None
 
         print(f"File created ->{file_path.replace('/temp','/')+fileName}")
+
+        print(htmlTemplate)
