@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from datetime import datetime
 import pdfkit
 import os
@@ -18,6 +19,8 @@ class ModelReport:
         algoDescription,
         descriptionGraphicPath="",
         graphicDescription="",
+        datafile = None,
+        randomSplitSeed = None
     ):
         """
         Creates a ModelReport object. Defines the Overview section of the model report.
@@ -47,8 +50,23 @@ class ModelReport:
         self.__algoDescription = algoDescription
         self.__descriptionGraphicPath = descriptionGraphicPath
         self.__graphicDescription = graphicDescription
-        self.__trainingSet = None
-        self.__testResults = None
+        self.__trainingSet = []
+        self.__testResults = []
+        self.__randomSplitSeed = None
+        self.__datafile = datafile
+        self.__randomSplitSeed = randomSplitSeed
+        self.__classToColor = {}
+        self.__dataModelOverview = f"""
+        <table>
+            <tr>
+                <th class="SplitInfoTable">Data:</th>
+                <th class="SplitInfoTable">{self.__datafile}</th>
+            </tr>
+            <tr>
+                <th class="SplitInfoTable">Split seed:</th>
+                <th class="SplitInfoTable">{self.__randomSplitSeed}</th>
+            </tr>
+        </table>"""
 
     def addTrainingSet(self, trainingSet):
         """
@@ -59,8 +77,8 @@ class ModelReport:
         trainingSet : list
             a list containing all training data [['sen','class']]
         """
-        if self.__trainingSet == None:
-            self.__trainingSet = trainingSet
+        self.__trainingSet.append(trainingSet)
+
 
     def addTestResults(self, testResults):
         """
@@ -71,8 +89,131 @@ class ModelReport:
         testResults : list
             a list containing all test results [[act,pred]]
         """
-        if self.__testResults == None:
-            self.__testResults = testResults
+        self.__testResults.append(testResults)
+
+    def __createMetrics(self, filepath,MetricsName):
+        classesInData =""""""
+        dictOfDataSets = {}
+        fullDataSet =  {}
+        numberOfElements = 0
+        boxPlotData = []
+        if MetricsName == "Test":
+            numberOfElements = len(self.__testResults)
+            for metric in self.__testResults:
+                for sample in metric:
+                    if not sample[0] in fullDataSet.keys():
+                        fullDataSet[sample[0]] = []
+
+                    if not sample[0] in dictOfDataSets.keys():
+                        dictOfDataSets[sample[0]] = 1
+                    else:
+                        dictOfDataSets[sample[0]] += 1
+                for key in dictOfDataSets.keys():
+                    fullDataSet[key].append(dictOfDataSets[key])
+                dictOfDataSets = {}
+
+        else:
+            numberOfElements = len(self.__trainingSet)
+            for metric in self.__trainingSet:
+                for sample in metric:
+                    if not sample[1] in fullDataSet.keys():
+                        fullDataSet[sample[1]] = []
+
+                    if not sample[1] in dictOfDataSets.keys():
+                        dictOfDataSets[sample[1]] = 1
+                    else:
+                        dictOfDataSets[sample[1]] += 1
+
+                for key in dictOfDataSets.keys():
+                    fullDataSet[key].append(dictOfDataSets[key])
+                dictOfDataSets = {}
+
+
+
+        for key in fullDataSet.keys():
+            sum = 0
+
+            for num in fullDataSet[key]:
+                sum += num
+            dictOfDataSets[key] = sum / numberOfElements
+
+        listOfSortedData = []
+        for key in dictOfDataSets.keys():
+
+            listOfSortedData.append([dictOfDataSets[key], key])
+        listOfSortedData = sorted(
+            listOfSortedData, key=lambda x: x[0], reverse=True
+        )
+        labels = []
+        sizes = []
+        explode = []
+        color = [
+            "#F06060",
+            "#F2DD64",
+            "#F3B562",
+            "#F2EBBF",
+            "#8CBEB2",
+            "#586473",
+            "#5C4B51",
+            "#4A89AA",
+        ]
+        colorData = []
+        for data, i in zip(
+                listOfSortedData, range(len(listOfSortedData))
+        ):
+            classesInData += f"""<tr>
+                        <th class="TrainingDataClasses">{data[1]}</th>
+                        <th>{int(data[0])}</th> 
+                    </tr>\n"""
+            labels.append(data[1])
+            sizes.append(data[0])
+            explode.append(0)
+            if MetricsName == "Training":
+                self.__classToColor[data[1]] = color[i % len(color)]
+            colorData.append(self.__classToColor[data[1]])
+        plt.pie(
+            sizes,
+            explode=explode,
+            labels=labels,
+            autopct="%1.1f%%",
+            shadow=False,
+            startangle=0,
+            colors=colorData,
+        )
+        plt.savefig(
+            filepath.replace("file://", '') + f"/PieChart{MetricsName}Data.svg",
+            format="svg")
+        plt.close()
+
+        for key in labels:
+            boxPlotData.append(fullDataSet[key])
+        labels.insert(0,"")
+        y_pos = np.arange(len(labels))
+        for data,i in zip(boxPlotData, range(len(boxPlotData))):
+            plt.boxplot(data,positions=[i+1], patch_artist=True,boxprops=dict(facecolor=self.__classToColor[labels[i+1]]))
+        plt.xticks(y_pos, labels, rotation=90)
+        plt.subplots_adjust(bottom=0.3, top=0.99)
+        plt.ylabel("Sampels")
+        plt.savefig(filepath.replace("file://",'') + f"/BarChart{MetricsName}Data.png",dpi=600, format="png")
+        plt.close()
+        labels = labels[1:]
+
+        if MetricsName == "Test":
+            folds = list(range(len(fullDataSet[list(fullDataSet.keys())[0]])))
+            plt.figure(figsize=(17, 5))
+            listOfKeys = list(fullDataSet.keys())
+            plt.bar(folds, fullDataSet[listOfKeys[0]], color=self.__classToColor[listOfKeys[0]])
+            for i in range(len(listOfKeys)-1):
+
+                bottom = np.array(fullDataSet[listOfKeys[0]])
+                for m in range(i):
+                    bottom += np.array(fullDataSet[listOfKeys[m+1]])
+                plt.bar(folds, fullDataSet[listOfKeys[i+1]], bottom=bottom,color=self.__classToColor[listOfKeys[i+1]])
+            plt.legend(listOfKeys)
+            plt.savefig(filepath.replace("file://",'') + f"/BarChartOverviewData.svg",format="svg")
+            plt.close()
+        return (classesInData,labels)
+
 
     def createRaport(self, fileName="ModelRaport",htmlDebug = False):
         """
@@ -96,9 +237,12 @@ class ModelReport:
 
         print(file_path)
         try:
-            os.mkdir(file_path)
+            if platform.system() == "Windows":
+                os.mkdir(file_path.replace("file://", "C:"))
+            else:
+                os.mkdir(file_path)
         except:
-            pass
+            print("Could not create folder!")
 
         options = {
             "page-size": "A4",
@@ -114,101 +258,81 @@ class ModelReport:
             referencesInHTML += (
                 f"""<li><a href="{self.__dictOfReferences[name]}">{name}</a></li>\n"""
             )
-        classesInTrainingData = """"""
-        dictOfTrainingsets = {}
-        for sample in self.__trainingSet:
-            if not sample[1] in dictOfTrainingsets.keys():
-                dictOfTrainingsets[sample[1]] = 1
-            else:
-                dictOfTrainingsets[sample[1]] += 1
-        listOfSortedTrainingData = []
-        for key in dictOfTrainingsets.keys():
-            listOfSortedTrainingData.append([dictOfTrainingsets[key], key])
-        listOfSortedTrainingData = sorted(
-            listOfSortedTrainingData, key=lambda x: x[0], reverse=True
-        )
-        labels = []
-        sizes = []
-        explode = []
-        color = [
-            "#2E80B3",
-            "#068587",
-            "#4FB99F",
-            "#6D909C",
-            "#F2B134",
-            "#ED553B",
-            "#EA8859",
-            "#F0EBDF",
-        ]
-        colorData = []
-        for data, i in zip(
-            listOfSortedTrainingData, range(len(listOfSortedTrainingData))
-        ):
-            classesInTrainingData += f"""<tr>
-                <th class="TrainingDataClasses">{data[1]}</th>
-                <th>{data[0]}</th> 
-            </tr>\n"""
-            labels.append(data[1])
-            sizes.append(data[0])
-            explode.append(0)
-            colorData.append(color[i % len(color)])
-        plt.pie(
-            sizes,
-            explode=explode,
-            labels=labels,
-            autopct="%1.1f%%",
-            shadow=False,
-            startangle=0,
-            colors=colorData,
-        )
-        plt.savefig(file_path.replace("file://",'') + "/PieChartTrainingData.svg", format="svg")
-        plt.close()
 
-        y_pos = np.arange(len(labels))
-        plt.bar(y_pos, sizes, align="center", color=colorData)
-        plt.xticks(y_pos, labels, rotation=90)
-        plt.subplots_adjust(bottom=0.3, top=0.99)
-        plt.ylabel("Sampels")
-        plt.savefig(file_path.replace("file://",'') + "/BarChartTrainingData.svg", format="svg")
-        plt.close()
 
-        confusionMatrix = {key: {subkey: 0 for subkey in labels} for key in labels}
-        performanceData = {
-            key: {"precision": 0, "recall": 0, "fScore": 0} for key in labels
-        }
-        for sample in self.__testResults:
-            confusionMatrix[sample[1]][sample[0]] += 1
+
+        classesInTrainingData, labels = self.__createMetrics(file_path,"Training")
+        classesInTestData, labelsTest = self.__createMetrics(file_path,"Test")
+
+
+
+        totalConfusionMatrix = {key: {subkey: 0 for subkey in labels} for key in labels}
+        listOfIndivitualConfusionsMatrixes = []
+        performanceData = {key: {"precision": 0, "recall": 0, "fScore": 0,"N":0} for key in labels}
+        totalCorrectClassified = 0
+        alltestCases = 0
+        for testFrame in self.__testResults:
+            individConfMatrix = {key: {subkey: 0 for subkey in labels} for key in labels}
+            for sample in testFrame:
+                if sample[1] == sample[0]:
+                    totalCorrectClassified += 1
+                alltestCases += 1
+                performanceData[sample[0]]["N"] += 1
+                totalConfusionMatrix[sample[1]][sample[0]] += 1
+                individConfMatrix[sample[1]][sample[0]] += 1
+            listOfIndivitualConfusionsMatrixes.append(individConfMatrix)
 
         confMatrix = []
-        for key in confusionMatrix.keys():
+        regConfMatrix = []
+        numberOfElementsInMatrix = {key : 0 for key in totalConfusionMatrix.keys()}
+        for key in totalConfusionMatrix.keys():
+            for subkey in totalConfusionMatrix[key].keys():
+                numberOfElementsInMatrix[key] += totalConfusionMatrix[subkey][key]
+        for key in totalConfusionMatrix.keys():
             line = []
-            for subkey in confusionMatrix[key].keys():
-                line.append(confusionMatrix[key][subkey])
+            line2 = []
+            for subkey in totalConfusionMatrix[key].keys():
+                line.append(totalConfusionMatrix[key][subkey])
+                line2.append((totalConfusionMatrix[key][subkey]/numberOfElementsInMatrix[key])*100)
             confMatrix.append(line)
+            regConfMatrix.append(line2)
         df_cm = pd.DataFrame(
             confMatrix,
-            index=[i + " (pre)" for i in confusionMatrix.keys()],
-            columns=[i + " (act)" for i in confusionMatrix.keys()],
+            index=[i + " (pre)" for i in totalConfusionMatrix.keys()],
+            columns=[i + " (act)" for i in totalConfusionMatrix.keys()],
+        )
+
+        df_refcm =pd.DataFrame(
+            regConfMatrix,
+            index=[i + " (pre)" for i in totalConfusionMatrix.keys()],
+            columns=[i + " (act)" for i in totalConfusionMatrix.keys()],
         )
         plt.figure(figsize=(10, 7))
         sn.heatmap(df_cm, annot=True)
         plt.subplots_adjust(bottom=0.3, top=0.99, left=0.2, right=0.99)
-        plt.savefig(file_path.replace("file://",'') + "/ConfusionMatrixPerformanceData.svg", format="svg"
-        )
+        plt.savefig(file_path.replace("file://",'') + "/ConfusionMatrixPerformanceData.png",dpi=600, format="png")
         plt.close()
 
-        for key in confusionMatrix.keys():
+        plt.figure(figsize=(10, 7))
+        sn.heatmap(df_refcm, annot=True)
+        plt.subplots_adjust(bottom=0.3, top=0.99, left=0.2, right=0.99)
+        plt.savefig(file_path.replace("file://",
+                                      '') + "/RegConfusionMatrixPerformanceData.png",
+                    dpi=600, format="png")
+        plt.close()
+
+        for key in totalConfusionMatrix.keys():
             totalInRow = 0
             totalInColumn = 0
-            for subkey in confusionMatrix.keys():
-                totalInRow += confusionMatrix[key][subkey]
-                totalInColumn += confusionMatrix[subkey][key]
+            for subkey in totalConfusionMatrix.keys():
+                totalInRow += totalConfusionMatrix[key][subkey]
+                totalInColumn += totalConfusionMatrix[subkey][key]
             if totalInRow == 0:
                 totalInRow = 1
             if totalInColumn == 0:
                 totalInColumn = 1
-            performanceData[key]["precision"] = confusionMatrix[key][key] / totalInRow
-            performanceData[key]["recall"] = confusionMatrix[key][key] / totalInColumn
+            performanceData[key]["precision"] = totalConfusionMatrix[key][key] / totalInRow
+            performanceData[key]["recall"] = totalConfusionMatrix[key][key] / totalInColumn
             try:
                 performanceData[key]["fScore"] = (
                     2
@@ -218,20 +342,106 @@ class ModelReport:
             except:
                 performanceData[key]["fScore"] = 0
 
+
+        fStatByKatAnSample = {key: [] for key in labels}
+        for frame in listOfIndivitualConfusionsMatrixes:
+            for key in frame.keys():
+                totalInRow = 0
+                totalInColumn = 0
+                for subkey in frame.keys():
+                    totalInRow += totalConfusionMatrix[key][subkey]
+                    totalInColumn += totalConfusionMatrix[subkey][key]
+                if totalInRow == 0:
+                    totalInRow = 1
+                if totalInColumn == 0:
+                    totalInColumn = 1
+                precision = totalConfusionMatrix[key][key] / totalInRow
+                recall= totalConfusionMatrix[key][key] /totalInColumn
+                try:
+                    fStatByKatAnSample[key].append((2*precision * recall) / (precision + recall))
+                except:
+                    fStatByKatAnSample[key].append(0)
+
+        listOfKeys = [""]
+        for key, i in zip(fStatByKatAnSample.keys(),range(len(list(fStatByKatAnSample.keys())))):
+            plt.boxplot(fStatByKatAnSample[key], positions=[i + 1], patch_artist=True,boxprops=dict(facecolor=self.__classToColor[key]))
+            listOfKeys.append(key)
+        plt.xticks(np.arange(len(listOfKeys)), listOfKeys, rotation=90)
+        plt.subplots_adjust(bottom=0.3, top=0.99)
+        plt.ylabel("Sampels")
+        plt.savefig(file_path.replace("file://",'') + f"/BoxPlotPerformance.png",dpi=600, format="png")
+        plt.close()
+
+        plt.figure(figsize=(17, 5))
+        for key, i in zip(fStatByKatAnSample.keys(),range(len(list(fStatByKatAnSample.keys())))):
+            plt.plot(list(range(len(fStatByKatAnSample[key]))),np.array(fStatByKatAnSample[key])*100,color= self.__classToColor[key])
+        plt.ylabel("F1Score (%)")
+        plt.xlabel("Splits")
+        plt.grid(which='minor', color='#EEEEEE', linestyle=':', linewidth=1)
+        plt.grid(which='major', color='#DDDDDD', linewidth=1.2)
+        plt.minorticks_on()
+        plt.legend(listOfKeys[1:])
+        plt.savefig(file_path.replace("file://",'') + f"/PlotFScore.png",dpi=600, format="png")
+        plt.close()
+
+
+        accuracy = totalCorrectClassified/alltestCases
+        macroAverage = {"precision": 0,"recall":0, "fScore":0}
+        weightedAverage = {"precision": 0, "recall": 0, "fScore": 0}
+        for scoreType in list(performanceData[list(performanceData.keys())[0]].keys())[:-1]:
+            sumMacroAverage = 0
+            divMacroAverage = 0
+            sumWeightedAverage = 0
+            divWeightedAverage = 0
+            for key in performanceData.keys():
+                sumMacroAverage += performanceData[key][scoreType]
+                divMacroAverage += 1
+                sumWeightedAverage += performanceData[key][scoreType] * performanceData[key]["N"]
+                divWeightedAverage += performanceData[key]["N"]
+            macroAverage[scoreType] = sumMacroAverage/divMacroAverage
+            weightedAverage[scoreType] = sumWeightedAverage/divWeightedAverage
+
         classificationPerformanceTable = """"""
         for key in performanceData.keys():
             classificationPerformanceTable += f"""<tr>
                 <th class="TrainingDataClasses">{key}</th>
-                <th class="ImgCell">{performanceData[key]['precision']*100}%</th>
-                <th class="ImgCell">{performanceData[key]['recall']*100}%</th>
-                <th class="ImgCell">{performanceData[key]['fScore']*100}%</th>
+                <th class="ImgCell">{performanceData[key]['precision']*100:.2f}%</th>
+                <th class="ImgCell">{performanceData[key]['recall']*100:.2f}%</th>
+                <th class="ImgCell">{performanceData[key]['fScore']*100:.2f}%</th>
                 </tr>\n"""
 
+        classificationPerformanceTable += f"""<tr>
+                <th class="HorizontalBar TrainingDataClasses Bold">Accuracy</th>
+                <th class="HorizontalBar ImgCell"></th>
+                <th class="HorizontalBar ImgCell"></th>
+                <th class="HorizontalBar ImgCell">{accuracy*100:.2f}%</th>
+                </tr>\n"""
+
+        classificationPerformanceTable += f"""<tr>
+                <th class="TrainingDataClasses Bold">Macro Average</th>
+                <th class="ImgCell">{macroAverage['precision']*100:.2f}%</th>
+                <th class="ImgCell">{macroAverage['recall']*100:.2f}%</th>
+                <th class="ImgCell">{macroAverage['fScore']*100:.2f}%</th>
+                </tr>\n"""
+
+        classificationPerformanceTable += f"""<tr>
+                <th class="TrainingDataClasses Bold">Weighted Average</th>
+                <th class="ImgCell">{weightedAverage['precision']*100:.2f}%</th>
+                <th class="ImgCell">{weightedAverage['recall']*100:.2f}%</th>
+                <th class="ImgCell">{weightedAverage['fScore']*100:.2f}%</th>
+                </tr>\n"""
+
+
+
+
+
         htmlTemplate = (
-            """
-<html>
+            """<html>
     <head>
         <style type="text/css">
+            .break-before {
+                page-break-before: always;
+            }
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
                     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -332,6 +542,23 @@ class ModelReport:
                 font-size: 15 px;
     
             }
+            
+            .HorizontalBar{
+                border-top-width: 3px;
+                border-top-style: solid;
+                border-top-color: #dadada;
+            }
+            
+            .Bold{
+                font-weight: bold;
+            }
+            
+            
+            .SplitInfoTable {
+                border-right: transparent;
+                padding-right: 10px;
+                text-align: left;
+            }
     
             .tableHeader {
                 font-size: 14px;
@@ -361,7 +588,7 @@ class ModelReport:
                 font-family: arial, sans-serif;
                 border-collapse: collapse;
                 margin-left: 40px;
-                width: 800px;
+                width: 500px;
             }
     
             .ImgCell {
@@ -373,11 +600,15 @@ class ModelReport:
                 display: -webkit-box;
                 padding-top: 50px;
             }
+            
+            .OverviewClassificationPerformance {
+                display: -webkit-box;
+                padding-top: 50px;
+            }
     
             .ROC,
             .ConfusionMatrix {
-                width: 400px; 
-                height: 250px;
+                height: 350px;
                 align-items: flex-start;
             }
     
@@ -392,6 +623,16 @@ class ModelReport:
     
             .h4PerformacePlots {
                 padding-bottom: 30px;
+            }
+            
+            .StackedGroupedBarChartDataSet{
+                height: 300px;
+            }
+            
+            .F1ScoreBySplit
+            {
+                padding-top: 50px;
+                height:300px;
             }
         </style>
     </head>
@@ -482,6 +723,7 @@ class ModelReport:
     </hr>
     
     <h2>Metrics</h2>
+    <label>{self.__dataModelOverview}</label>
     <div class="TrainingDataset">
         <h4>Training Dataset</h4>
         <div class="TrainingDataView">
@@ -494,44 +736,87 @@ class ModelReport:
             </table>
     
             <div class="PiChartTrainingData">
-                <img class="svgImage" src="{file_path}/PieChartTrainingData.svg"" alt="PlotSample">
+                <img class="svgImage" src="{file_path}/PieChartTrainingData.svg" alt="PlotSample">
             </div>
     
             <div class="BarChartTrainingData">
-                <img class="svgImage" src="{file_path}/BarChartTrainingData.svg" alt="PlotSample">
-            </div>
-        </div>
-        <hr>
-        </hr>
-        <h4>Classification Performance</h4>
-        <div class="ClassificationPerformance">
-            <table class="ClassificationPerformanceTable">
-                <tr>
-                    <th class="tableHeader TrainingDataClasses">Classes</th>
-                    <th class="tableHeader">Precision</th>
-                    <th class="tableHeader">Recall</th>
-                    <th class="tableHeader">F1 Score</th>
-                </tr>
-                    {classificationPerformanceTable}
-            </table>
-            <div class="PerformancePlots">
-                <div class="ConfusionMatrix">
-                    <h4 class="h4PerformacePlots">ConfusionMatrix:</h4>
-                    <img class=" svgImage" src="{file_path}/ConfusionMatrixPerformanceData.svg" alt="PlotSample">
-                </div>
+                <img class="svgImage" src="{file_path}/BarChartTrainingData.png" alt="PlotSample">
             </div>
         </div>
     </div>
+    
+    <div class="TrainingDataset">
+        <h4>Test Dataset</h4>
+        <div class="TrainingDataView">
+            <table class="TrainingDataTable">
+                <tr>
+                    <th class="tableHeader TrainingDataClasses">Classes</th>
+                    <th class="tableHeader">Number of samples</th>
+                </tr>
+                {classesInTestData} 
+            </table>
+    
+            <div class="PiChartTrainingData">
+                <img class="svgImage" src="{file_path}/PieChartTestData.svg" alt="PlotSample">
+            </div>
+    
+            <div class="BarChartTrainingData">
+                <img class="svgImage" src="{file_path}/BarChartTestData.png" alt="PlotSample">
+            </div>
+        </div>
+    </div>
+    
+    <div class="StackedGroupedBarChartDataSet">
+        <img class="svgImage" src="{file_path}/BarChartOverviewData.svg" alt="PlotSample">
+    </div>
+
+        <h2 class="break-before">Classification Performance</h2>
+        <div class="ClassificationPerformance">
+            <div class="OverviewClassificationPerformance">
+                <div>
+                    <table class="ClassificationPerformanceTable">
+                        <tr>
+                            <th class="tableHeader TrainingDataClasses">Classes</th>
+                            <th class="tableHeader">Precision</th>
+                            <th class="tableHeader">Recall</th>
+                            <th class="tableHeader">F1 Score</th>
+                        </tr>
+                            {classificationPerformanceTable}
+                    </table>
+                </div>
+                <div class="BarChartTrainingData">
+                    <img class="svgImage" src="{file_path}/BoxPlotPerformance.png" alt="PlotSample">
+                </div>
+            </div>
+            <div class="PerformancePlots">
+                <div class="ConfusionMatrix">
+                    <h4 class="h4PerformacePlots">ConfusionMatrix:</h4>
+                    <img class=" svgImage" src="{file_path}/ConfusionMatrixPerformanceData.png" alt="PlotSample">
+                </div>
+                <div class="ConfusionMatrix">
+                    <h4 class="h4PerformacePlots">Normalised ConfusionMatrix:</h4>
+                    <img class=" svgImage" src="{file_path}/RegConfusionMatrixPerformanceData.png" alt="PlotSample">
+                </div>
+            </div>
+            <div class="F1ScoreBySplit">
+                <h4>F1 Socre by split:</h4>
+                <img class="svgImage" src="{file_path}/PlotFScore.png" alt="PlotSample">
+            </div>
+        </div>
     </div>
     </html>"""
         )
 
         if htmlDebug:
             print(htmlTemplate)
+            with open("debugFile.html",'w') as out:
+                out.write(htmlTemplate)
 
-        pdfkit.from_string(
-            htmlTemplate, fileName, options=options, configuration=config
-        )
+            pdfkit.from_file("debugFile.html",fileName, options=options, configuration=config)
+        else:
+            pdfkit.from_string(
+                htmlTemplate, fileName, options=options, configuration=config
+            )
         self.__trainingSet = None
         self.__testResults = None
         print(f"File created ->{file_path.replace('/temp','/')+fileName}")

@@ -2,6 +2,7 @@ import unittest
 from ModelReport.ModelReport import ModelReport
 from DataHandler.DataHandler import DataHandler
 import random
+from time import process_time
 
 
 class Test_ModelReport(unittest.TestCase):
@@ -32,12 +33,7 @@ class Test_ModelReport(unittest.TestCase):
             7: "HotelOrganisation",
             8: "Unknown",
         }
-        testResults = []
 
-        for i in range(100):
-            true = random.randint(1, 8)
-            predicted = random.randint(1, 8)
-            testResults.append([mappingTable[true], mappingTable[predicted]])
 
         myModelReport = ModelReport(
             modelName,
@@ -47,10 +43,24 @@ class Test_ModelReport(unittest.TestCase):
             algorithemDescription,
             graphicPath,
             graphicDescription,
+            "DataSetV1.2",
+            "123420"
         )
-        myModelReport.addTrainingSet(trainingSet)
-        myModelReport.addTestResults(testResults)
-        myModelReport.createRaport()
+
+        for m in range(100):
+            testResults = []
+            for i in range(1000):
+                true = random.randint(1, 8)
+                predicted = random.randint(1, 8)
+                testResults.append(
+                    [mappingTable[true], mappingTable[predicted]])
+            myModelReport.addTestResults(testResults)
+            random.seed(process_time())
+            random.shuffle(trainingSet)
+            myModelReport.addTrainingSet(trainingSet[0:-1000])
+
+
+        myModelReport.createRaport(htmlDebug=True)
 
         self.assertTrue(True)
 
