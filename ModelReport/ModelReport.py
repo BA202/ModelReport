@@ -287,7 +287,7 @@ class ModelReport:
         numberOfElementsInMatrix = {key : 0 for key in totalConfusionMatrix.keys()}
         for key in totalConfusionMatrix.keys():
             for subkey in totalConfusionMatrix[key].keys():
-                numberOfElementsInMatrix[key] += totalConfusionMatrix[subkey][key]
+                numberOfElementsInMatrix[key] += totalConfusionMatrix[key][subkey]
         for key in totalConfusionMatrix.keys():
             line = []
             line2 = []
