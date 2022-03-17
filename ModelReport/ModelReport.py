@@ -122,7 +122,7 @@ class ModelReport:
                 dictOfDataSets = {}
 
         else:
-            for metric in self.__testResults:
+            for metric in self.__trainingSet:
                 labels = list({sample[1] for sample in metric})
             numberOfElements = len(self.__trainingSet)
             for metric in self.__trainingSet:
@@ -141,6 +141,7 @@ class ModelReport:
                     else:
                         fullDataSet[key].append(0)
                 dictOfDataSets = {}
+
 
 
         for key in fullDataSet.keys():
@@ -248,12 +249,13 @@ class ModelReport:
         else:
             file_path = os.path.join(os.getcwd(), "temp")
 
-        print(file_path)
         try:
             if platform.system() == "Windows":
-                os.mkdir(file_path.replace("file://", "C:"))
+                if not os.path.exists(file_path.replace("file://", "C:")):
+                    os.mkdir(file_path.replace("file://", "C:"))
             else:
-                os.mkdir(file_path)
+                if not os.path.exists(file_path):
+                    os.mkdir(file_path)
         except:
             print("Could not create folder!")
 
@@ -300,13 +302,16 @@ class ModelReport:
         numberOfElementsInMatrix = {key : 0 for key in totalConfusionMatrix.keys()}
         for key in totalConfusionMatrix.keys():
             for subkey in totalConfusionMatrix[key].keys():
-                numberOfElementsInMatrix[key] += totalConfusionMatrix[key][subkey]
+                numberOfElementsInMatrix[key] += totalConfusionMatrix[subkey][key]
         for key in totalConfusionMatrix.keys():
             line = []
             line2 = []
             for subkey in totalConfusionMatrix[key].keys():
                 line.append(totalConfusionMatrix[key][subkey])
-                line2.append((totalConfusionMatrix[key][subkey]/numberOfElementsInMatrix[key])*100)
+                if not numberOfElementsInMatrix[subkey] == 0:
+                    line2.append((totalConfusionMatrix[key][subkey]/numberOfElementsInMatrix[subkey])*100)
+                else:
+                    line2.append(0)
             confMatrix.append(line)
             regConfMatrix.append(line2)
         df_cm = pd.DataFrame(
@@ -362,14 +367,14 @@ class ModelReport:
                 totalInRow = 0
                 totalInColumn = 0
                 for subkey in frame.keys():
-                    totalInRow += totalConfusionMatrix[key][subkey]
-                    totalInColumn += totalConfusionMatrix[subkey][key]
+                    totalInRow += frame[key][subkey]
+                    totalInColumn += frame[subkey][key]
                 if totalInRow == 0:
                     totalInRow = 1
                 if totalInColumn == 0:
                     totalInColumn = 1
-                precision = totalConfusionMatrix[key][key] / totalInRow
-                recall= totalConfusionMatrix[key][key] /totalInColumn
+                precision = frame[key][key] / totalInRow
+                recall= frame[key][key] /totalInColumn
                 try:
                     fStatByKatAnSample[key].append((2*precision * recall) / (precision + recall))
                 except:

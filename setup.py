@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = "1.1.2"
+version = "1.2.0"
 setup(name='ModelReport',
       version=version,
       description='A class to create pdf reports for classification algorithems',
