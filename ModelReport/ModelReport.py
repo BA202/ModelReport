@@ -92,12 +92,17 @@ class ModelReport:
         self.__testResults.append(testResults)
 
     def __createMetrics(self, filepath,MetricsName):
+
+        labels = []
+
         classesInData =""""""
         dictOfDataSets = {}
         fullDataSet =  {}
         numberOfElements = 0
         boxPlotData = []
         if MetricsName == "Test":
+            for metric in self.__testResults:
+                labels = list({sample[0] for sample in metric})
             numberOfElements = len(self.__testResults)
             for metric in self.__testResults:
                 for sample in metric:
@@ -108,11 +113,17 @@ class ModelReport:
                         dictOfDataSets[sample[0]] = 1
                     else:
                         dictOfDataSets[sample[0]] += 1
-                for key in dictOfDataSets.keys():
-                    fullDataSet[key].append(dictOfDataSets[key])
+
+                for key in labels:
+                    if key in dictOfDataSets.keys():
+                        fullDataSet[key].append(dictOfDataSets[key])
+                    else:
+                        fullDataSet[key].append(0)
                 dictOfDataSets = {}
 
         else:
+            for metric in self.__testResults:
+                labels = list({sample[1] for sample in metric})
             numberOfElements = len(self.__trainingSet)
             for metric in self.__trainingSet:
                 for sample in metric:
@@ -124,10 +135,12 @@ class ModelReport:
                     else:
                         dictOfDataSets[sample[1]] += 1
 
-                for key in dictOfDataSets.keys():
-                    fullDataSet[key].append(dictOfDataSets[key])
+                for key in labels:
+                    if key in dictOfDataSets.keys():
+                        fullDataSet[key].append(dictOfDataSets[key])
+                    else:
+                        fullDataSet[key].append(0)
                 dictOfDataSets = {}
-
 
 
         for key in fullDataSet.keys():
@@ -165,8 +178,8 @@ class ModelReport:
                         <th class="TrainingDataClasses">{data[1]}</th>
                         <th>{int(data[0])}</th> 
                     </tr>\n"""
-            labels.append(data[1])
             sizes.append(data[0])
+            labels.append(data[1])
             explode.append(0)
             if MetricsName == "Training":
                 self.__classToColor[data[1]] = color[i % len(color)]
