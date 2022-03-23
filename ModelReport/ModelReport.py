@@ -386,7 +386,7 @@ class ModelReport:
             listOfKeys.append(key)
         plt.xticks(np.arange(len(listOfKeys)), listOfKeys, rotation=90)
         plt.subplots_adjust(bottom=0.3, top=0.99)
-        plt.ylabel("Sampels")
+        plt.ylabel("F1-Score")
         plt.savefig(file_path.replace("file://",'') + f"/BoxPlotPerformance.png",dpi=600, format="png")
         plt.close()
 
@@ -514,10 +514,11 @@ class ModelReport:
                 display: block;
                 width: 500px;
                 font-weight: lighter;
+                font-size: 100%;
             }
     
             .OverviewImg {
-                height: 250px;
+                height: 200px;
                 
             }
     
@@ -628,6 +629,13 @@ class ModelReport:
             .ConfusionMatrix {
                 height: 350px;
                 align-items: flex-start;
+            }
+            
+            .infoLabel{
+                font-size: 8px;
+                font-weight: 300;
+                padding: 2px;
+                margin: 2px;
             }
     
             .svgImage {
@@ -744,6 +752,7 @@ class ModelReport:
     <label>{self.__dataModelOverview}</label>
     <div class="TrainingDataset">
         <h4>Training Dataset</h4>
+        <label class="infoLabel">(average)</label>
         <div class="TrainingDataView">
             <table class="TrainingDataTable">
                 <tr>
@@ -755,16 +764,19 @@ class ModelReport:
     
             <div class="PiChartTrainingData">
                 <img class="svgImage" src="{file_path}/PieChartTrainingData.svg" alt="PlotSample">
+                <label class="infoLabel">Average distribution of the samples</label>
             </div>
     
             <div class="BarChartTrainingData">
                 <img class="svgImage" src="{file_path}/BarChartTrainingData.png" alt="PlotSample">
+                <label class="infoLabel">Distribution of the samples contained in each test split</label>
             </div>
         </div>
     </div>
     
     <div class="TrainingDataset">
         <h4>Test Dataset</h4>
+        <label class="infoLabel">(average)</label>
         <div class="TrainingDataView">
             <table class="TrainingDataTable">
                 <tr>
@@ -776,16 +788,19 @@ class ModelReport:
     
             <div class="PiChartTrainingData">
                 <img class="svgImage" src="{file_path}/PieChartTestData.svg" alt="PlotSample">
+                <label class="infoLabel">Average distribution of the samples</label>
             </div>
     
             <div class="BarChartTrainingData">
                 <img class="svgImage" src="{file_path}/BarChartTestData.png" alt="PlotSample">
+                <label class="infoLabel">Distribution of the samples contained in each test split</label>
             </div>
         </div>
     </div>
     
     <div class="StackedGroupedBarChartDataSet">
         <img class="svgImage" src="{file_path}/BarChartOverviewData.svg" alt="PlotSample">
+        <label class="infoLabel">Detailed training split composition</label>
     </div>
 
         <h2 class="break-before">Classification Performance</h2>
@@ -804,6 +819,7 @@ class ModelReport:
                 </div>
                 <div class="BarChartTrainingData">
                     <img class="svgImage" src="{file_path}/BoxPlotPerformance.png" alt="PlotSample">
+                    <label class="infoLabel">Distribution of the F1-Score</label>
                 </div>
             </div>
             <div class="PerformancePlots">
@@ -819,6 +835,7 @@ class ModelReport:
             <div class="F1ScoreBySplit">
                 <h4>F1 Socre by split:</h4>
                 <img class="svgImage" src="{file_path}/PlotFScore.png" alt="PlotSample">
+                <label class="infoLabel">F1-Score per split</label>
             </div>
         </div>
     </div>

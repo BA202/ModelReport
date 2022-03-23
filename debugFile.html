@@ -58,10 +58,11 @@
                 display: block;
                 width: 500px;
                 font-weight: lighter;
+                font-size: 100%;
             }
     
             .OverviewImg {
-                height: 250px;
+                height: 200px;
                 
             }
     
@@ -173,6 +174,13 @@
                 height: 350px;
                 align-items: flex-start;
             }
+            
+            .infoLabel{
+                font-size: 8px;
+                font-weight: 300;
+                padding: 2px;
+                margin: 2px;
+            }
     
             .svgImage {
                 height: 100%;
@@ -248,7 +256,7 @@
         </div>
         <div class="TestDate">
             <label class="TitleWithText">Test Date:</label>
-            <label>16/03/2022 18:08:51</label>
+            <label>23/03/2022 10:58:12</label>
         </div>
         <div class="Creator">
             <label class="TitleWithText">Creator:</label>
@@ -299,6 +307,7 @@
         </table></label>
     <div class="TrainingDataset">
         <h4>Training Dataset</h4>
+        <label class="infoLabel">(average)</label>
         <div class="TrainingDataView">
             <table class="TrainingDataTable">
                 <tr>
@@ -307,23 +316,23 @@
                 </tr>
                 <tr>
                         <th class="TrainingDataClasses">Room</th>
-                        <th>194</th> 
+                        <th>192</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">Location</th>
-                        <th>184</th> 
+                        <th>185</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">Staff</th>
-                        <th>92</th> 
+                        <th>93</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">Unknown</th>
-                        <th>88</th> 
+                        <th>86</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">HotelOrganisation</th>
-                        <th>69</th> 
+                        <th>70</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">Food</th>
@@ -331,7 +340,7 @@
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">ReasonForStay</th>
-                        <th>54</th> 
+                        <th>55</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">GeneralUtility</th>
@@ -342,16 +351,19 @@
     
             <div class="PiChartTrainingData">
                 <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/PieChartTrainingData.svg" alt="PlotSample">
+                <label class="infoLabel">Average distribution of the samples</label>
             </div>
     
             <div class="BarChartTrainingData">
                 <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/BarChartTrainingData.png" alt="PlotSample">
+                <label class="infoLabel">Distribution of the samples contained in each test split</label>
             </div>
         </div>
     </div>
     
     <div class="TrainingDataset">
         <h4>Test Dataset</h4>
+        <label class="infoLabel">(average)</label>
         <div class="TrainingDataView">
             <table class="TrainingDataTable">
                 <tr>
@@ -359,52 +371,55 @@
                     <th class="tableHeader">Number of samples</th>
                 </tr>
                 <tr>
-                        <th class="TrainingDataClasses">Unknown</th>
+                        <th class="TrainingDataClasses">Food</th>
                         <th>126</th> 
                     </tr>
 <tr>
-                        <th class="TrainingDataClasses">Room</th>
-                        <th>126</th> 
-                    </tr>
-<tr>
-                        <th class="TrainingDataClasses">Staff</th>
-                        <th>125</th> 
-                    </tr>
-<tr>
-                        <th class="TrainingDataClasses">Location</th>
+                        <th class="TrainingDataClasses">ReasonForStay</th>
                         <th>125</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">HotelOrganisation</th>
-                        <th>124</th> 
+                        <th>125</th> 
                     </tr>
 <tr>
                         <th class="TrainingDataClasses">GeneralUtility</th>
+                        <th>125</th> 
+                    </tr>
+<tr>
+                        <th class="TrainingDataClasses">Location</th>
                         <th>124</th> 
                     </tr>
 <tr>
-                        <th class="TrainingDataClasses">ReasonForStay</th>
+                        <th class="TrainingDataClasses">Unknown</th>
+                        <th>124</th> 
+                    </tr>
+<tr>
+                        <th class="TrainingDataClasses">Room</th>
                         <th>123</th> 
                     </tr>
 <tr>
-                        <th class="TrainingDataClasses">Food</th>
-                        <th>122</th> 
+                        <th class="TrainingDataClasses">Staff</th>
+                        <th>123</th> 
                     </tr>
  
             </table>
     
             <div class="PiChartTrainingData">
                 <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/PieChartTestData.svg" alt="PlotSample">
+                <label class="infoLabel">Average distribution of the samples</label>
             </div>
     
             <div class="BarChartTrainingData">
                 <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/BarChartTestData.png" alt="PlotSample">
+                <label class="infoLabel">Distribution of the samples contained in each test split</label>
             </div>
         </div>
     </div>
     
     <div class="StackedGroupedBarChartDataSet">
         <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/BarChartOverviewData.svg" alt="PlotSample">
+        <label class="infoLabel">Detailed training split composition</label>
     </div>
 
         <h2 class="break-before">Classification Performance</h2>
@@ -421,74 +436,75 @@
                             <tr>
                 <th class="TrainingDataClasses">Room</th>
                 <th class="ImgCell">12.46%</th>
-                <th class="ImgCell">12.25%</th>
-                <th class="ImgCell">12.36%</th>
+                <th class="ImgCell">12.49%</th>
+                <th class="ImgCell">12.47%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">Location</th>
-                <th class="ImgCell">12.43%</th>
-                <th class="ImgCell">12.33%</th>
-                <th class="ImgCell">12.38%</th>
+                <th class="ImgCell">12.96%</th>
+                <th class="ImgCell">13.00%</th>
+                <th class="ImgCell">12.98%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">Staff</th>
-                <th class="ImgCell">12.31%</th>
-                <th class="ImgCell">12.21%</th>
-                <th class="ImgCell">12.26%</th>
+                <th class="ImgCell">12.68%</th>
+                <th class="ImgCell">12.81%</th>
+                <th class="ImgCell">12.74%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">Unknown</th>
-                <th class="ImgCell">12.75%</th>
-                <th class="ImgCell">12.59%</th>
-                <th class="ImgCell">12.67%</th>
+                <th class="ImgCell">12.02%</th>
+                <th class="ImgCell">11.92%</th>
+                <th class="ImgCell">11.97%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">HotelOrganisation</th>
-                <th class="ImgCell">12.59%</th>
-                <th class="ImgCell">12.58%</th>
-                <th class="ImgCell">12.58%</th>
+                <th class="ImgCell">12.50%</th>
+                <th class="ImgCell">12.55%</th>
+                <th class="ImgCell">12.52%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">Food</th>
-                <th class="ImgCell">11.76%</th>
-                <th class="ImgCell">12.12%</th>
-                <th class="ImgCell">11.94%</th>
+                <th class="ImgCell">12.27%</th>
+                <th class="ImgCell">12.13%</th>
+                <th class="ImgCell">12.20%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">ReasonForStay</th>
-                <th class="ImgCell">12.52%</th>
-                <th class="ImgCell">12.64%</th>
-                <th class="ImgCell">12.58%</th>
+                <th class="ImgCell">12.21%</th>
+                <th class="ImgCell">12.34%</th>
+                <th class="ImgCell">12.27%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses">GeneralUtility</th>
-                <th class="ImgCell">12.60%</th>
-                <th class="ImgCell">12.69%</th>
-                <th class="ImgCell">12.64%</th>
+                <th class="ImgCell">12.87%</th>
+                <th class="ImgCell">12.74%</th>
+                <th class="ImgCell">12.80%</th>
                 </tr>
 <tr>
                 <th class="HorizontalBar TrainingDataClasses Bold">Accuracy</th>
                 <th class="HorizontalBar ImgCell"></th>
                 <th class="HorizontalBar ImgCell"></th>
-                <th class="HorizontalBar ImgCell">12.43%</th>
+                <th class="HorizontalBar ImgCell">12.50%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses Bold">Macro Average</th>
-                <th class="ImgCell">12.43%</th>
-                <th class="ImgCell">12.43%</th>
-                <th class="ImgCell">12.43%</th>
+                <th class="ImgCell">12.50%</th>
+                <th class="ImgCell">12.50%</th>
+                <th class="ImgCell">12.50%</th>
                 </tr>
 <tr>
                 <th class="TrainingDataClasses Bold">Weighted Average</th>
-                <th class="ImgCell">12.43%</th>
-                <th class="ImgCell">12.43%</th>
-                <th class="ImgCell">12.43%</th>
+                <th class="ImgCell">12.49%</th>
+                <th class="ImgCell">12.50%</th>
+                <th class="ImgCell">12.49%</th>
                 </tr>
 
                     </table>
                 </div>
                 <div class="BarChartTrainingData">
                     <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/BoxPlotPerformance.png" alt="PlotSample">
+                    <label class="infoLabel">Distribution of the F1-Score</label>
                 </div>
             </div>
             <div class="PerformancePlots">
@@ -504,6 +520,7 @@
             <div class="F1ScoreBySplit">
                 <h4>F1 Socre by split:</h4>
                 <img class="svgImage" src="/Users/tobiasrothlin/Documents/BachelorArbeit/ModelReport/temp/PlotFScore.png" alt="PlotSample">
+                <label class="infoLabel">F1-Score per split</label>
             </div>
         </div>
     </div>
