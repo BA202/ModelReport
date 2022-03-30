@@ -55,10 +55,10 @@ class Test_ModelReport(unittest.TestCase):
                 testResults.append(
                     [mappingTable[true], mappingTable[predicted]])
             myModelReport.addTestResults(testResults)
+            myModelReport.addTrainingResults(testResults,{"Lenght":"50","Test":"1023"})
             random.seed(process_time())
             random.shuffle(trainingSet)
             myModelReport.addTrainingSet(trainingSet[0:-1000])
-
 
         myModelReport.createRaport(htmlDebug=True)
 

@@ -52,21 +52,13 @@ class ModelReport:
         self.__graphicDescription = graphicDescription
         self.__trainingSet = []
         self.__testResults = []
+        self.__trainingResults = []
+        self.__trainingMetaData = None
         self.__randomSplitSeed = None
         self.__datafile = datafile
         self.__randomSplitSeed = randomSplitSeed
         self.__classToColor = {}
-        self.__dataModelOverview = f"""
-        <table>
-            <tr>
-                <th class="SplitInfoTable">Data:</th>
-                <th class="SplitInfoTable">{self.__datafile}</th>
-            </tr>
-            <tr>
-                <th class="SplitInfoTable">Split seed:</th>
-                <th class="SplitInfoTable">{self.__randomSplitSeed}</th>
-            </tr>
-        </table>"""
+
 
     def addTrainingSet(self, trainingSet):
         """
@@ -90,6 +82,24 @@ class ModelReport:
             a list containing all test results [[act,pred]]
         """
         self.__testResults.append(testResults)
+
+    def addTrainingResults(self, trainingResults, trainingMetaData = None):
+        """
+        Adds the training results. This is used to visualise the classification performance.
+
+        Parameters
+        ----------
+        trainingResults : list
+            a list containing all training results [[act,pred]]
+        trainingMetaData : dict
+            a string to show training metadata
+        """
+
+        for case in trainingResults:
+            self.__trainingResults.append(case)
+        if self.__trainingMetaData == None:
+            self.__trainingMetaData = trainingMetaData
+
 
     def __createMetrics(self, filepath,MetricsName):
 
@@ -449,7 +459,40 @@ class ModelReport:
                 <th class="ImgCell">{weightedAverage['fScore']*100:.2f}%</th>
                 </tr>\n"""
 
+        totalTrainingCases = 0
+        totalCorrectTrainingCases = 0
+        for case in self.__trainingResults:
+            totalTrainingCases += 1
+            if case[0] == case[1]:
+                totalCorrectTrainingCases += 1
+        if totalTrainingCases == 0:
+            totalTrainingCases = 1
+        trainingAccuracy = totalCorrectTrainingCases/totalTrainingCases
 
+        params = ""
+
+        if not self.__trainingMetaData == None:
+            params = ""
+            for key in self.__trainingMetaData:
+                params += f" {key}: {self.__trainingMetaData[key]}"
+
+            modelparams = f"""<th class="SplitInfoTable Bold">Model params:</th>
+                        <th class="SplitInfoTable">{params}</th>"""
+        else:
+            modelparams = ""
+
+        self.__dataModelOverview = f"""
+                <table>
+                    <tr>
+                        <th class="SplitInfoTable Bold">Data:</th>
+                        <th class="SplitInfoTable">{self.__datafile}</th>
+                        <th class="SplitInfoTable Bold">Split seed:</th>
+                        <th class="SplitInfoTable">{self.__randomSplitSeed}</th>
+                        <th class="SplitInfoTable Bold">Training accuracy:</th>
+                        <th class="SplitInfoTable">{trainingAccuracy*100:.2f}%</th>
+                        {modelparams}
+                    </tr>
+                </table>"""
 
 
 
@@ -471,6 +514,10 @@ class ModelReport:
                 display: -webkit-box;
                 position: relative;
                 top: -50px;
+            }
+            
+            .Bold{
+                font-weight: bold;
             }
     
             .TitleWithText {
@@ -837,6 +884,8 @@ class ModelReport:
                 <img class="svgImage" src="{file_path}/PlotFScore.png" alt="PlotSample">
                 <label class="infoLabel">F1-Score per split</label>
             </div>
+            
+            
         </div>
     </div>
     </html>"""
