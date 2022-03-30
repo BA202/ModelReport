@@ -53,7 +53,7 @@ class ModelReport:
         self.__trainingSet = []
         self.__testResults = []
         self.__trainingResults = []
-        self.__trainingMetaData = None
+        self.__trainingMetaData = []
         self.__randomSplitSeed = None
         self.__datafile = datafile
         self.__randomSplitSeed = randomSplitSeed
@@ -97,8 +97,7 @@ class ModelReport:
 
         for case in trainingResults:
             self.__trainingResults.append(case)
-        if self.__trainingMetaData == None:
-            self.__trainingMetaData = trainingMetaData
+        self.__trainingMetaData.append(trainingMetaData)
 
 
     def __createMetrics(self, filepath,MetricsName):
@@ -469,17 +468,20 @@ class ModelReport:
             totalTrainingCases = 1
         trainingAccuracy = totalCorrectTrainingCases/totalTrainingCases
 
-        params = ""
+        modelparams = ""
 
-        if not self.__trainingMetaData == None:
-            params = ""
-            for key in self.__trainingMetaData:
-                params += f" {key}: {self.__trainingMetaData[key]}"
+        for i,modelData in enumerate(self.__trainingMetaData):
+            if i < 10:
+                params = ""
+                for key in modelData:
+                    params += f"""<th class="SplitInfoTable">{key}:</th>
+                            <th class="SplitInfoTable">{modelData[key]}:</th>"""
 
-            modelparams = f"""<th class="SplitInfoTable Bold">Model params:</th>
-                        <th class="SplitInfoTable">{params}</th>"""
-        else:
-            modelparams = ""
+                modelparams += f"""<tr>
+                            <th class="SplitInfoTable Bold">Fold:{i+1}</th>
+                            {params}
+                        </tr>"""
+
 
         self.__dataModelOverview = f"""
                 <table>
@@ -490,7 +492,6 @@ class ModelReport:
                         <th class="SplitInfoTable">{self.__randomSplitSeed}</th>
                         <th class="SplitInfoTable Bold">Training accuracy:</th>
                         <th class="SplitInfoTable">{trainingAccuracy*100:.2f}%</th>
-                        {modelparams}
                     </tr>
                 </table>"""
 
@@ -647,6 +648,10 @@ class ModelReport:
                 width: 250px;
                 height: 250px;
                 padding-left: 80px;
+            }
+            
+            .ModelParametersDiv{
+                margin-top: 40px;
             }
     
             .ClassificationPerformanceTable {
@@ -883,6 +888,11 @@ class ModelReport:
                 <h4>F1 Socre by split:</h4>
                 <img class="svgImage" src="{file_path}/PlotFScore.png" alt="PlotSample">
                 <label class="infoLabel">F1-Score per split</label>
+            </div>
+            <div class ="ModelParametersDiv">
+                <table>
+                    {modelparams}
+                </table>
             </div>
             
             
