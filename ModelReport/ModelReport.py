@@ -475,7 +475,7 @@ class ModelReport:
                 params = ""
                 for key in modelData:
                     params += f"""<th class="SplitInfoTable">{key}:</th>
-                            <th class="SplitInfoTable">{modelData[key]}:</th>"""
+                            <th class="SplitInfoTable Lighter">{modelData[key]}</th>"""
 
                 modelparams += f"""<tr>
                             <th class="SplitInfoTable Bold">Fold:{i+1}</th>
@@ -608,6 +608,10 @@ class ModelReport:
                 border-left: transparent;
                 font-size: 15 px;
     
+            }
+
+            .Lighter{
+                font-weight: lighter;
             }
             
             .HorizontalBar{
