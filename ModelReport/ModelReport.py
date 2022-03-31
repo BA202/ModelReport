@@ -469,18 +469,18 @@ class ModelReport:
         trainingAccuracy = totalCorrectTrainingCases/totalTrainingCases
 
         modelparams = ""
+        if not self.__trainingMetaData == None:
+            for i,modelData in enumerate(self.__trainingMetaData):
+                if i < 10:
+                    params = ""
+                    for key in modelData:
+                        params += f"""<th class="SplitInfoTable">{key}:</th>
+                                <th class="SplitInfoTable Lighter">{modelData[key]}</th>"""
 
-        for i,modelData in enumerate(self.__trainingMetaData):
-            if i < 10:
-                params = ""
-                for key in modelData:
-                    params += f"""<th class="SplitInfoTable">{key}:</th>
-                            <th class="SplitInfoTable Lighter">{modelData[key]}</th>"""
-
-                modelparams += f"""<tr>
-                            <th class="SplitInfoTable Bold">Fold:{i+1}</th>
-                            {params}
-                        </tr>"""
+                    modelparams += f"""<tr>
+                                <th class="SplitInfoTable Bold">Fold:{i+1}</th>
+                                {params}
+                            </tr>"""
 
 
         self.__dataModelOverview = f"""
